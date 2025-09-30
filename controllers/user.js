@@ -2,7 +2,6 @@ import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { uploadToCloudinary } from "../utils/cloudinaryUpload.js";
 import jwt from "jsonwebtoken"
 import { sendEmail } from "../utils/nodemailer.js";
 import pkg from "simple-crypto-js";
