@@ -3,24 +3,42 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
 const userSchema = new mongoose.Schema({
+    firstName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    lastName: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true,
+        index: true
+    },
     email: {
         type: String,
         required: true,
         unique: true,
         lowercase: true,
-        trim: true
+        trim: true,
+        index: true
     },
     password: {
         type: String,
         required: true
     },
-    avatar: { type: String ,
-        default:""
+    avatar: {
+        type: String,
+        default: ""
     }
-}
-    ,
-    {
-        timestamps: true
+},
+{
+    timestamps: true
     });
 
 userSchema.pre("save", async function (next) {
