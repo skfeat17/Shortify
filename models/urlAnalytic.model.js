@@ -9,24 +9,32 @@ const urlAnalyticSchema = new mongoose.Schema({
     },
     ipAddress: {
         type: String,
-        required: true
-    }, 
-    userAgent: {    
-        type: String,   
-        required: true
+        default: ""
     },
-    referrer: { 
+    platform: {
+        type: String,
+        default: ""
+    },
+    device: {
+        type: String,
+        default: ""
+    },
+    referrer: {
         type: String,
         default: ""
     },
     country: {
         type: String,
         default: ""
+    },
+    browser: {
+        type: String,
+        default: ""
     }
 },
-{
-    timestamps: true
-});
+    {
+        timestamps: true
+    });
 
 const UrlAnalytic = mongoose.model("UrlAnalytic", urlAnalyticSchema);
 export default UrlAnalytic; 
