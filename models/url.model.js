@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const urlSchema = new mongoose.Schema({
     title:{
         type: String,
-        required: true,
         trim: true
     },
     originalUrl: {
@@ -29,7 +28,6 @@ const urlSchema = new mongoose.Schema({
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true
     }
 },
 {
