@@ -3,12 +3,12 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
 const userSchema = new mongoose.Schema({
-    firstName: {
+    firstname: {
         type: String,
         required: true,
         trim: true
     },
-    lastName: {
+    lastname: {
         type: String,
         required: true,
         trim: true
