@@ -7,10 +7,6 @@ const urlAnalyticSchema = new mongoose.Schema({
         required: true,
         index: true
     },
-    ipAddress: {
-        type: String,
-        default: ""
-    },
     platform: {
         type: String,
         default: ""

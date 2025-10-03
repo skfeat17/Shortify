@@ -10,7 +10,6 @@ const __dirname = path.dirname(__filename);
 
 export const redirector = asyncHandler(async (req, res) => {
   const {
-    ip,
     country,
     referrer,
     platform,
@@ -34,13 +33,13 @@ export const redirector = asyncHandler(async (req, res) => {
   // Save analytics
   const data = await UrlAnalytic.create({
     url: url._id,
-    ipAddress: ip,
     platform,
     country,
     referrer,
     device,
     browser,
   });
+  console.log("Request Info Data - ",req.requestMeta)
   console.log("Analytics saved:", data);
 
   // Redirect user to original URL
