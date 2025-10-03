@@ -10,7 +10,7 @@ export async function sendEmail({ to, name, otp }) {
     OTP: otp,
     appName: process.env.APP_NAME,
     expiryMinutes: 10,
-    supportEmail: "noreply.shortify@gmail.com",
+    supportEmail: "customer.shortify@gmail.com",
     year: new Date().getFullYear(),
   });
 
