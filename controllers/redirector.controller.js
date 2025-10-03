@@ -1,6 +1,12 @@
 import Url from "../models/url.model.js";
 import UrlAnalytic from "../models/urlAnalytic.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// get dirname since you're using ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const redirector = asyncHandler(async (req, res) => {
   const {
@@ -16,13 +22,14 @@ export const redirector = asyncHandler(async (req, res) => {
   const url = await Url.findOne({ shortUrlCode });
 
   if (!url) {
+    // serve public/404.html
     return res
       .status(404)
-      .send("<h1>404 Not Found</h1><h2>URL doesn’t exist</h2>");
+      .sendFile(path.join(__dirname, "../public/404.html"));
   }
-  url.clicks += 1;
-  await url.save({ validateBeforeSave: false })
 
+  url.clicks += 1;
+  await url.save({ validateBeforeSave: false });
 
   // Save analytics
   const data = await UrlAnalytic.create({
@@ -35,6 +42,7 @@ export const redirector = asyncHandler(async (req, res) => {
     browser,
   });
   console.log("Analytics saved:", data);
+
   // Redirect user to original URL
   res.redirect(url.originalUrl);
 });
