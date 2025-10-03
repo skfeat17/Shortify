@@ -6,6 +6,17 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { shortCodeGenerator } from "../utils/shortCodeGenerator.js";
 
+function extractDomainName(url) {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, "");
+    const parts = hostname.split(".");
+    const main = parts.length > 2 ? parts[parts.length - 2] : parts[0];
+    return main.charAt(0).toUpperCase() + main.slice(1);
+  } catch (err) {
+    return null;
+  }
+}
+
 // Create a new shortened URL Anonymously
 export const createRandomUrl = asyncHandler(async (req, res) => {
     console.log("ARRIVED HERE")
@@ -16,13 +27,14 @@ export const createRandomUrl = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Original URL is required");
     }
     originalUrl = originalUrl.trim();
+    const title = extractDomainName(originalUrl)
     const pattern = /^(https?:\/\/)[\w.-]+(\.[\w\.-]+)+[/#?]?.*$/i;
     if (!pattern.test(originalUrl)) {
         throw new ApiError(400, "Invalid URL format");
     }
     const shortUrlCode = shortCodeGenerator(6);
 
-    const urlObject = await Url.create({ originalUrl, shortUrlCode, createdBy: ownerId ? ownerId : null });
+    const urlObject = await Url.create({ title,originalUrl, shortUrlCode, createdBy: ownerId ? ownerId : null });
 
 
     res.status(201).json(new ApiResponse(201, "Short URL created successfully", {
@@ -37,7 +49,7 @@ export const createCustomUrl = asyncHandler(async (req, res) => {
     if (!shortUrlCode || !originalUrl) {
         throw new ApiError(400, "All Fields are required")
     }
-    title = title ? title : shortUrlCode;
+    title = title ? title : extractDomainName(originalUrl)
     shortUrlCode = shortUrlCode.toLowerCase();
     const regex = /[^a-zA-Z0-9_-]/;
     if (regex.test(shortUrlCode)) {
@@ -178,4 +190,17 @@ export const getUrlAnalytics = asyncHandler( async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, responseData, "Analytics fetched successfully"));
 
+});
+//Get My Urls
+export const getMyUrls = asyncHandler(async (req, res, next) => {
+    // Ensure user is logged in
+    const ownerId = req.user?._id;
+    // Find all URLs created by this user
+    const urls = await Url.find({ createdBy: ownerId }).sort({ createdAt: -1 }).select("title shortUrlCode originalUrl createdAt");
+    return res.status(200).json(
+      new ApiResponse(200, {
+        count: urls.length,
+        urls
+      }, "Fetched user URLs successfully")
+    );
 });

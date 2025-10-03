@@ -14,14 +14,15 @@ export const redirector = asyncHandler(async (req, res) => {
 
   const shortUrlCode = req.params.shortCode;
   const url = await Url.findOne({ shortUrlCode });
-  
+
   if (!url) {
     return res
       .status(404)
       .send("<h1>404 Not Found</h1><h2>URL doesn’t exist</h2>");
   }
-   url.clicks +=1;
-   url.save({validateBeforeSave:false})
+  url.clicks += 1;
+  await url.save({ validateBeforeSave: false })
+
 
   // Save analytics
   const data = await UrlAnalytic.create({
@@ -33,7 +34,7 @@ export const redirector = asyncHandler(async (req, res) => {
     device,
     browser,
   });
-console.log("Analytics saved:", data);
+  console.log("Analytics saved:", data);
   // Redirect user to original URL
   res.redirect(url.originalUrl);
 });
