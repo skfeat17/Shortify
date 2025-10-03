@@ -196,7 +196,7 @@ export const getMyUrls = asyncHandler(async (req, res, next) => {
     // Ensure user is logged in
     const ownerId = req.user?._id;
     // Find all URLs created by this user
-    const urls = await Url.find({ createdBy: ownerId }).sort({ createdAt: -1 }).select("title shortUrlCode originalUrl createdAt");
+    const urls = await Url.find({ createdBy: ownerId }).sort({ createdAt: -1 }).select("title shortUrlCode originalUrl createdAt clicks");
     return res.status(200).json(
       new ApiResponse(200, {
         count: urls.length,
