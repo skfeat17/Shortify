@@ -66,11 +66,10 @@ export const createShortUrl = asyncHandler(async (req, res) => {
     res.status(201).json(
         new ApiResponse(
             201,
-            "Short URL created successfully",
             {
                 shortUrl: `${process.env.BASE_URL}/${urlObject.shortUrlCode}`,
                 urlDetails: urlObject
-            }
+            },   "Short URL created successfully"
         )
     );
 });
