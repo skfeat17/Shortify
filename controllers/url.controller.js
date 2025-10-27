@@ -17,54 +17,64 @@ function extractDomainName(url) {
   }
 }
 
-// Create a new shortened URL Anonymously
-export const createRandomUrl = asyncHandler(async (req, res) => {
-    console.log("ARRIVED HERE")
-    let { originalUrl } = req.body;
+// Create a new Shortened URL (Random or Custom)
+export const createShortUrl = asyncHandler(async (req, res) => {
+    let { shortUrlCode, originalUrl, title } = req.body;
     const ownerId = req.user?._id || null;
-    console.log(ownerId)
+
+    // Validation
     if (!originalUrl) {
         throw new ApiError(400, "Original URL is required");
     }
+
     originalUrl = originalUrl.trim();
-    const title = extractDomainName(originalUrl)
-    const pattern = /^(https?:\/\/)[\w.-]+(\.[\w\.-]+)+[/#?]?.*$/i;
-    if (!pattern.test(originalUrl)) {
+    const urlPattern = /^(https?:\/\/)[\w.-]+(\.[\w\.-]+)+[/#?]?.*$/i;
+    if (!urlPattern.test(originalUrl)) {
         throw new ApiError(400, "Invalid URL format");
     }
-    const shortUrlCode = shortCodeGenerator(6);
 
-    const urlObject = await Url.create({ title,originalUrl, shortUrlCode, createdBy: ownerId ? ownerId : null });
+    // Set title automatically if not provided
+    title = title ? title.trim() : extractDomainName(originalUrl);
 
+    // If user provided custom short code
+    if (shortUrlCode) {
+        shortUrlCode = shortUrlCode.toLowerCase();
 
-    res.status(201).json(new ApiResponse(201, "Short URL created successfully", {
-        shortUrl: `${process.env.BASE_URL}/${urlObject.shortUrlCode}`,
-        urlDetails: urlObject
-    }));
+        const invalidChars = /[^a-zA-Z0-9_-]/;
+        if (invalidChars.test(shortUrlCode)) {
+            throw new ApiError(400, "Only letters, numbers, _ and - are allowed in custom short codes");
+        }
+
+        const existingCode = await Url.findOne({ shortUrlCode });
+        if (existingCode) {
+            throw new ApiError(409, "This short name is already taken. Please choose another");
+        }
+    } else {
+        // Generate random short code if not provided
+        shortUrlCode = shortCodeGenerator(6);
+    }
+
+    // Save to database
+    const urlObject = await Url.create({
+        title,
+        originalUrl,
+        shortUrlCode,
+        createdBy: ownerId
+    });
+
+    // Respond
+    res.status(201).json(
+        new ApiResponse(
+            201,
+            "Short URL created successfully",
+            {
+                shortUrl: `${process.env.BASE_URL}/${urlObject.shortUrlCode}`,
+                urlDetails: urlObject
+            }
+        )
+    );
 });
-// Create a new Custom Shortened URL 
-export const createCustomUrl = asyncHandler(async (req, res) => {
-    let { shortUrlCode, originalUrl, title } = req.body;
-    const owner = req.user._id
-    if (!shortUrlCode || !originalUrl) {
-        throw new ApiError(400, "All Fields are required")
-    }
-    title = title ? title : extractDomainName(originalUrl)
-    shortUrlCode = shortUrlCode.toLowerCase();
-    const regex = /[^a-zA-Z0-9_-]/;
-    if (regex.test(shortUrlCode)) {
-        throw new ApiError(400, "Only _ and - are allowed")
-    }
-    const existingCode = await Url.findOne({ shortUrlCode })
-    if (existingCode) {
-        throw new ApiError(401, "Name already taken, Choose another")
-    }
-    const urlObject = await Url.create({ shortUrlCode, originalUrl, title, createdBy: owner })
-    res.status(201).json(new ApiResponse(201, {
-        shortUrl: `${process.env.BASE_URL}/${urlObject.shortUrlCode}`,
-        urlDetails: urlObject
-    }, "Short URL created successfully",));
-})
+
 // Edit Short URL 
 export const editShortUrl = asyncHandler(async (req, res) => {
     const id = req.params.id;
