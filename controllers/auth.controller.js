@@ -44,12 +44,13 @@ export const register = asyncHandler(async (req, res) => {
 
   const existingUser = await User.find({ $or: [{ email }, { username }] })
   if (existingUser.length > 0) {
+        if (existingUser[0].username === username) {
+      throw new ApiError(409, "Username already in use")
+    }
     if (existingUser[0].email === email) {
       throw new ApiError(409, "Email already in use")
     }
-    if (existingUser[0].username === username) {
-      throw new ApiError(409, "Username already in use")
-    }
+
 
   }
   const avatar = `https://ui-avatars.com/api/?name=${firstname}+${lastname}&size=200&bold=true&background=random`
@@ -234,3 +235,4 @@ export const logout = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
+
