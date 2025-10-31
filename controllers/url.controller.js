@@ -6,7 +6,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { shortCodeGenerator } from "../utils/shortCodeGenerator.js";
 import { getAllUrlAnalytics,getSpecificUrlAnalytics } from "../utils/trackUrl.js";
-
 function extractDomainName(url) {
   try {
     const hostname = new URL(url).hostname.replace(/^www\./, "");
@@ -105,11 +104,25 @@ export const deleteShortUrl = asyncHandler(async(req,res)=>{
     await Url.findByIdAndDelete(id);
     res.status(200).json(new ApiResponse(200,{},"Url Deleted Successfully"))
 })
+
 //Track Url 
 export const getUrlAnalytics = asyncHandler( async (req, res) => {
     const id = req.user?._id;
     const urlTracedData = await getSpecificUrlAnalytics(id);
     return res.status(200).json(
       new ApiResponse(200,urlTracedData, "Fetched user URLs successfully")
+    );
+});
+//Get My Urls
+export const getMyUrls = asyncHandler(async (req, res, next) => {
+    // Ensure user is logged in
+    const ownerId = req.user?._id;
+    // Find all URLs created by this user
+    const urls = await Url.find({ createdBy: ownerId }).sort({ createdAt: -1 }).select("title shortUrlCode originalUrl createdAt clicks");
+    return res.status(200).json(
+      new ApiResponse(200, {
+        count: urls.length,
+        urls
+      }, "Fetched user URLs successfully")
     );
 });
