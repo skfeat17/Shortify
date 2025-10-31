@@ -6,7 +6,7 @@ import { urlAuthenticate } from "../middlewares/urlOwnerShip.middleware.js";
 const router = Router()
 //public route
 router.post('/create',randomUrlAuthenticate,createShortUrl)
-router.get('/track/:shortUrlCode',getUrlAnalytics)
+router.get('/track/all',authenticate,getUrlAnalytics)
 //secured routes
 router.put('/edit/:id',authenticate,urlAuthenticate, editShortUrl)
 router.delete('/delete/:id',authenticate,urlAuthenticate,deleteShortUrl)
