@@ -126,3 +126,19 @@ export const getMyUrls = asyncHandler(async (req, res, next) => {
       }, "Fetched user URLs successfully")
     );
 });
+
+// Get Specific URL Analytics
+export const getSpecificUrlAnalytics = asyncHandler( async (req, res) => {
+    const urlId = req.params.id;
+    if(!urlId){
+      throw new ApiError(400, "URL ID is required");
+    }
+    const url = await Url.findOne({shortUrlCode:urlId});
+    if(!url){
+      throw new ApiError(404, "URL not found");
+    }
+    const urlTracedData = await getSpecificUrlAnalytics(url._id);
+    return res.status(200).json(
+      new ApiResponse(200,urlTracedData, "Fetched URL analytics successfully")
+    );
+});
