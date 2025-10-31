@@ -170,7 +170,7 @@ export async function getSpecificUrlAnalytics(urlId) {
     const analytics = await UrlAnalytic.aggregate([
       {
         $match: {
-          url: mongoose.Types.ObjectId(urlId)
+          url: new mongoose.Types.ObjectId(urlId)
         }
       },
       {

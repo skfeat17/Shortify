@@ -108,7 +108,7 @@ export const deleteShortUrl = asyncHandler(async(req,res)=>{
 //Track Url 
 export const getUrlAnalytics = asyncHandler( async (req, res) => {
     const id = req.user?._id;
-    const urlTracedData = await getSpecificUrlAnalytics(id);
+    const urlTracedData = await getAllUrlAnalytics(id);
     return res.status(200).json(
       new ApiResponse(200,urlTracedData, "Fetched user URLs successfully")
     );
