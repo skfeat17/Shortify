@@ -88,7 +88,6 @@ export async function getAllUrlAnalytics(userId) {
             { $match: { createdAt: { $gte: last30Days } } },
             { $group: { _id: "$country", clicks: { $sum: 1 } } },
             { $sort: { clicks: -1 } },
-            { $limit: 5 },
             { $project: { country: "$_id", clicks: 1, _id: 0 } }
           ],
 
@@ -97,7 +96,6 @@ export async function getAllUrlAnalytics(userId) {
             { $match: { createdAt: { $gte: last30Days } } },
             { $group: { _id: "$browser", clicks: { $sum: 1 } } },
             { $sort: { clicks: -1 } },
-            { $limit: 5 },
             { $project: { browser: "$_id", clicks: 1, _id: 0 } }
           ],
 
